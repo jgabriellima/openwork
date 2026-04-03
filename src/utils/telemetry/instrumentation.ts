@@ -363,12 +363,26 @@ async function initializeBetaTracing(
     import('@opentelemetry/exporter-logs-otlp-http'),
   ])
 
+  // Parse headers from OTEL_EXPORTER_OTLP_HEADERS env var for Langfuse auth
+  const headers: Record<string, string> = {}
+  const envHeaders = process.env.OTEL_EXPORTER_OTLP_HEADERS
+  if (envHeaders) {
+    for (const pair of envHeaders.split(',')) {
+      const [key, ...valueParts] = pair.split('=')
+      if (key && valueParts.length > 0) {
+        headers[key.trim()] = valueParts.join('=').trim()
+      }
+    }
+  }
+
   const httpConfig = {
     url: `${endpoint}/v1/traces`,
+    headers,
   }
 
   const logHttpConfig = {
     url: `${endpoint}/v1/logs`,
+    headers,
   }
 
   // Initialize trace exporter

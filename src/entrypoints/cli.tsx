@@ -3,6 +3,7 @@ import {
   resolveCodexApiCredentials,
   resolveProviderRequest,
 } from '../services/api/providerConfig.js'
+import { applyOpenWorkProviderFromArgvAndStore } from '../utils/openworkProviderStore.js'
 
 // Bugfix for corepack auto-pinning, which adds yarnpkg to peoples' package.jsons
 // eslint-disable-next-line custom-rules/no-top-level-side-effects
@@ -94,9 +95,17 @@ async function main(): Promise<void> {
   if (args.length === 1 && (args[0] === '--version' || args[0] === '-v' || args[0] === '-V')) {
     // MACRO.VERSION is inlined at build time
     // biome-ignore lint/suspicious/noConsole:: intentional console output
-    console.log(`${MACRO.DISPLAY_VERSION ?? MACRO.VERSION} (Open Claude)`);
+    console.log(`${MACRO.DISPLAY_VERSION ?? MACRO.VERSION} (OpenWork)`);
     return;
   }
+
+  if (args[0] === 'configure' || args[0] === 'setup') {
+    const { runOpenWorkConfigure } = await import('../cli/openWorkConfigure.js');
+    await runOpenWorkConfigure();
+    return;
+  }
+
+  applyOpenWorkProviderFromArgvAndStore()
 
   validateProviderEnvOrExit()
 

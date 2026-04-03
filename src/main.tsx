@@ -904,7 +904,11 @@ async function run(): Promise<CommanderCommand> {
 
   // Use preAction hook to run initialization only when executing a command,
   // not when displaying help. This avoids the need for env variable signaling.
-  program.hook('preAction', async thisCommand => {
+  program.hook('preAction', async (thisCommand, actionCommand) => {
+    const leaf = actionCommand?.name() ?? thisCommand.name();
+    if (leaf === 'configure') {
+      return;
+    }
     await Promise.all([ensureMdmSettingsLoaded(), ensureKeychainPrefetchCompleted()]);
     await init();
     profileCheckpoint('preAction_after_init');
@@ -3782,7 +3786,7 @@ async function run(): Promise<CommanderCommand> {
         pendingHookMessages
       }, renderAndRun);
     }
-  }).version(`${MACRO.DISPLAY_VERSION ?? MACRO.VERSION} (Open Claude)`, '-v, --version', 'Output the version number');
+  }).version(`${MACRO.DISPLAY_VERSION ?? MACRO.VERSION} (OpenWork)`, '-v, --version', 'Output the version number');
 
   // Worktree flags
   program.option('-w, --worktree [name]', 'Create a new git worktree for this session (optionally specify a name)');
@@ -4318,6 +4322,14 @@ async function run(): Promise<CommanderCommand> {
       process.exit(1);
     });
   }
+
+  // OpenWork: interactive provider wizard (skips heavy preAction init — see hook above)
+  program.command('configure').alias('setup').description('Interactive setup: choose an OpenAI-compatible provider and save credentials to ~/.openwork').action(async () => {
+    const {
+      runOpenWorkConfigure
+    } = await import('./cli/openWorkConfigure.js');
+    await runOpenWorkConfigure();
+  });
 
   // Doctor command - check installation health
   program.command('doctor').description('Check the health of your Claude Code auto-updater. Note: The workspace trust dialog is skipped and stdio servers from .mcp.json are spawned for health checks. Only use this command in directories you trust.').action(async () => {

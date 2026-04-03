@@ -76,25 +76,12 @@ const MAX_CONTENT_SIZE = 60 * 1024 // 60KB (Honeycomb limit is 64KB, staying saf
  *   allowlisted via the tengu_trace_lantern GrowthBook gate
  */
 export function isBetaTracingEnabled(): boolean {
-  const baseEnabled =
+  // When ENABLE_BETA_TRACING_DETAILED and BETA_TRACING_ENDPOINT are explicitly
+  // set, the user has opted in — honor that regardless of session mode or user type.
+  return (
     isEnvTruthy(process.env.ENABLE_BETA_TRACING_DETAILED) &&
     Boolean(process.env.BETA_TRACING_ENDPOINT)
-
-  if (!baseEnabled) {
-    return false
-  }
-
-  // For external users, enable in SDK/headless mode OR when org is allowlisted.
-  // Gate reads from disk cache, so first run after allowlisting returns false;
-  // works from second run onward (same behavior as enhanced_telemetry_beta).
-  if (process.env.USER_TYPE !== 'ant') {
-    return (
-      getIsNonInteractiveSession() ||
-      getFeatureValue_CACHED_MAY_BE_STALE('tengu_trace_lantern', false)
-    )
-  }
-
-  return true
+  )
 }
 
 /**

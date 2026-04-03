@@ -1,6 +1,6 @@
 # OpenWork Local Agent Playbook
 
-This playbook is a practical guide to run OpenWork with a local model (Ollama), work safely, and get strong day-to-day results.
+Practical guide to run OpenWork with a local model (Ollama), work safely, and get strong day-to-day results.
 
 ## 1. What You Have
 
@@ -13,13 +13,13 @@ This playbook is a practical guide to run OpenWork with a local model (Ollama), 
 
 Run this in your project root:
 
-```powershell
+```bash
 bun run dev:profile
 ```
 
 For quick switches:
 
-```powershell
+```bash
 # low latency preset
 bun run dev:fast
 
@@ -33,19 +33,19 @@ If everything is healthy, OpenWork starts directly.
 
 ### 3.1 Initialize a local profile
 
-```powershell
+```bash
 bun run profile:init -- --provider ollama --model llama3.1:8b
 ```
 
 ### 3.2 Confirm profile file
 
-```powershell
-Get-Content .\.openwork-profile.json
+```bash
+cat .openwork-profile.json
 ```
 
 ### 3.3 Validate environment
 
-```powershell
+```bash
 bun run doctor:runtime
 ```
 
@@ -53,29 +53,27 @@ bun run doctor:runtime
 
 ### 4.1 Human-readable checks
 
-```powershell
+```bash
 bun run doctor:runtime
 ```
 
 ### 4.2 JSON diagnostics (automation/logging)
 
-```powershell
+```bash
 bun run doctor:runtime:json
 ```
 
 ### 4.3 Persist runtime report
 
-```powershell
+```bash
 bun run doctor:report
 ```
 
-Report output:
-
-- `reports/doctor-runtime.json`
+Report output: `reports/doctor-runtime.json`
 
 ### 4.4 Hardening checks
 
-```powershell
+```bash
 # practical checks (smoke + runtime doctor)
 bun run hardening:check
 
@@ -85,100 +83,77 @@ bun run hardening:strict
 
 ## 5. Provider Modes
 
-## 5.1 Local mode (Ollama)
+### 5.1 Local mode (Ollama)
 
-```powershell
+```bash
 bun run profile:init -- --provider ollama --model llama3.1:8b
 bun run dev:profile
 ```
 
 Expected behavior:
-
 - No API key required.
 - `OPENAI_BASE_URL` should be `http://localhost:11434/v1`.
 
-## 5.2 OpenAI mode
+### 5.2 OpenAI mode
 
-```powershell
+```bash
 bun run profile:init -- --provider openai --api-key sk-... --model gpt-4o
 bun run dev:profile
 ```
 
 Expected behavior:
-
 - Real API key required.
 - Placeholder values fail fast.
 
 ## 6. Troubleshooting Matrix
 
-## 6.1 `Script not found "dev"`
+### 6.1 `Script not found "dev"`
 
-Cause:
-
-- You ran command in the wrong folder.
+Cause: Running command in the wrong folder.
 
 Fix:
-
-```powershell
-cd C:\Users\Lucas Pedry\Documents\openwork\openwork
+```bash
+cd /path/to/openwork
 bun run dev:profile
 ```
 
-## 6.2 `ollama: term not recognized`
+### 6.2 `ollama: command not found`
 
-Cause:
+Cause: Ollama not installed or not in PATH.
 
-- Ollama not installed or PATH not loaded in this terminal.
-
-Fix:
-
-- Install Ollama from https://ollama.com/download/windows or `winget install Ollama.Ollama`.
-- Open a new terminal and run:
-
-```powershell
+Fix: Install from https://ollama.com/download, then:
+```bash
 ollama --version
 ```
 
-## 6.3 `Provider reachability failed` for localhost
+### 6.3 `Provider reachability failed` for localhost
 
-Cause:
-
-- Ollama service not running.
+Cause: Ollama service not running.
 
 Fix:
-
-```powershell
+```bash
 ollama serve
 ```
 
-Then, in another terminal:
-
-```powershell
+Then in another terminal:
+```bash
 bun run doctor:runtime
 ```
 
-## 6.4 `Missing key for non-local provider URL`
+### 6.4 `Missing key for non-local provider URL`
 
-Cause:
+Cause: `OPENAI_BASE_URL` points to a remote endpoint without a key.
 
-- `OPENAI_BASE_URL` points to remote endpoint without key.
-
-Fix:
-
-- Re-initialize profile for ollama:
-
-```powershell
+Fix: Re-initialize profile for ollama:
+```bash
 bun run profile:init -- --provider ollama --model llama3.1:8b
 ```
 
-## 6.5 Placeholder key (`SUA_CHAVE`) error
+### 6.5 Placeholder key error
 
-Cause:
-
-- Placeholder was used instead of real key.
+Cause: Placeholder was used instead of real key.
 
 Fix:
-
 - For OpenAI: use a real key.
 - For Ollama: no key needed; keep localhost base URL.
 
@@ -190,41 +165,41 @@ Fix:
 
 Switch model quickly:
 
-```powershell
+```bash
 bun run profile:init -- --provider ollama --model qwen2.5-coder:14b
 bun run dev:profile
 ```
 
 Preset shortcuts already configured:
 
-```powershell
+```bash
 bun run profile:fast   # llama3.2:3b
 bun run profile:code   # qwen2.5-coder:7b
 ```
 
 ## 8. Practical Prompt Playbook (Copy/Paste)
 
-## 8.1 Code understanding
+### 8.1 Code understanding
 
 - "Map this repository architecture and explain the execution flow from entrypoint to tool invocation."
 - "Find the top 5 risky modules and explain why."
 
-## 8.2 Refactoring
+### 8.2 Refactoring
 
 - "Refactor this module for clarity without behavior change, then run checks and summarize diff impact."
 - "Extract shared logic from duplicated functions and add minimal tests."
 
-## 8.3 Debugging
+### 8.3 Debugging
 
 - "Reproduce the failure, identify root cause, implement fix, and validate with commands."
 - "Trace this error path and list likely failure points with confidence levels."
 
-## 8.4 Reliability
+### 8.4 Reliability
 
 - "Add runtime guardrails and fail-fast messages for invalid provider env vars."
 - "Create a diagnostic command that outputs JSON report for CI artifacts."
 
-## 8.5 Review mode
+### 8.5 Review mode
 
 - "Do a code review of unstaged changes, prioritize bugs/regressions, and suggest concrete patches."
 
@@ -239,7 +214,7 @@ bun run profile:code   # qwen2.5-coder:7b
 
 When something breaks, run in order:
 
-```powershell
+```bash
 bun run doctor:runtime
 bun run doctor:report
 bun run smoke
@@ -247,7 +222,7 @@ bun run smoke
 
 If answers are very slow, check processor mode:
 
-```powershell
+```bash
 ollama ps
 ```
 
@@ -255,7 +230,7 @@ If `PROCESSOR` shows `CPU`, your setup is valid but latency will be higher for l
 
 If local model mode is failing:
 
-```powershell
+```bash
 ollama --version
 ollama serve
 bun run doctor:runtime
@@ -264,7 +239,7 @@ bun run dev:profile
 
 ## 11. Command Reference
 
-```powershell
+```bash
 # profile
 bun run profile:init -- --provider ollama --model llama3.1:8b
 bun run profile:init -- --provider openai --api-key sk-... --model gpt-4o

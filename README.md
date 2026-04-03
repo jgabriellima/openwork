@@ -1,6 +1,6 @@
 # OpenWork
 
-An agentic coding CLI that works with **any OpenAI-compatible LLM** — GPT-4o, DeepSeek, Gemini, Llama, Mistral, Codex, or any local model via Ollama.
+An agentic coding CLI with the **same feature set as Claude Code**. The OpenWork difference is first-class support for **non-Anthropic models** via an OpenAI-compatible API shim (`openaiShim.ts`): GPT-4o, DeepSeek, OpenRouter, Ollama, and other Chat Completions endpoints.
 
 ---
 
@@ -11,7 +11,7 @@ OpenWork ships a provider shim (`src/services/api/openaiShim.ts`) that sits betw
 ```
 Tool System (Bash, FileRead, FileEdit, Glob, Grep, WebFetch, Agent, MCP…)
         |
-        v
+        v   
   Anthropic SDK interface (duck-typed)
         |
         v
@@ -36,16 +36,46 @@ The rest of the stack is unaware a different model is running underneath.
 
 ## Install
 
-### Option A: npm (recommended)
+The **unscoped** npm package name `openwork` points at a **different project** (other binary layout). This repo is installed from **source** with **Bun** (the bundle step uses `bun run scripts/build.ts`).
+
+### Option A: One-line installer (recommended)
+
+**macOS / Linux / Git Bash (Windows)** — needs [Git](https://git-scm.com/), [Node.js 20+](https://nodejs.org/), and [Bun](https://bun.sh):
 
 ```bash
-npm install -g @gitlawb/openwork
+curl -fsSL https://raw.githubusercontent.com/jgabriellima/openwork/main/scripts/install-openwork.sh | bash
 ```
+
+Clone defaults to `~/.openwork-source`, then `bun install`, `bun run build`, `npm link`. Override clone dir: `OPENWORK_INSTALL_DIR=/path`.
+
+If the terminal window **closes immediately** (common on Windows when double‑clicking a script), open **Terminal / PowerShell / cmd**, paste the command there, or run with a pause:
+
+```bash
+OPENWORK_PAUSE=1 bash -c 'curl -fsSL https://raw.githubusercontent.com/jgabriellima/openwork/main/scripts/install-openwork.sh | bash'
+```
+
+**Windows (PowerShell)** — run in a window you keep open (do **not** double‑click):
+
+```powershell
+irm https://raw.githubusercontent.com/jgabriellima/openwork/main/scripts/install-openwork.ps1 | iex
+```
+
+Optional: `$env:OPENWORK_PAUSE=1` before `iex` to pause at the end.
+
+### Option A2: npm global (only if you publish this repo yourself)
+
+After you publish under **your** scope (e.g. `@yourscope/openwork`) with `dist/cli.mjs` in the tarball:
+
+```bash
+npm install -g @yourscope/openwork
+```
+
+Do **not** rely on `npm install -g openwork` for this repository.
 
 ### Option B: From source (requires Bun)
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/jgabriellima/openwork.git
 cd openwork
 bun install
 bun run build
@@ -55,7 +85,7 @@ npm link  # optional global install
 ### Option C: Run directly with Bun
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/jgabriellima/openwork.git
 cd openwork
 bun install
 bun run dev
@@ -63,27 +93,70 @@ bun run dev
 
 ---
 
-## Quick Start
+## CLI provider config (`~/.openwork`)
 
-### 1. Set environment variables
+### Interactive setup (recommended for distribution)
+
+After install, run once:
 
 ```bash
-export CLAUDE_CODE_USE_OPENAI=1
-export OPENAI_API_KEY=sk-your-key-here
-export OPENAI_MODEL=gpt-4o
+openwork configure
+```
+
+Alias: `openwork setup`. You pick a preset (OpenAI, Ollama, DeepSeek, OpenRouter, or custom URL), model, and API key; everything is saved under `~/.openwork/` with the API key encrypted at rest. No project `.env` required.
+
+### Advanced: one-shot flags
+
+Instead of exporting secrets in every shell, you can pass provider flags once. OpenWork strips them from `process.argv` during bootstrap (so they do not reach the main Commander parser) and persists settings under **`~/.openwork/`**:
+
+| File | Contents |
+|------|----------|
+| `provider.json` | `model`, `baseUrl` (chmod `0600`) |
+| `credentials.enc` | `OPENAI`-style API key, **AES-256-GCM** at rest (chmod `0600`) |
+| `.key` | Random 32-byte key used only to encrypt `credentials.enc` (chmod `0600`) |
+
+**Security model:** this is **not** a password vault. Anyone who can read your user account (or backups) can decrypt the files. It **does** prevent accidental `git commit` of keys and avoids keeping the API key in project-level `.env`. Prefer OS full-disk encryption. Passing `--apiKey=…` on the command line may still expose the secret in shell history and in short-lived `ps` listings—after the first save, run plain `openwork` so the key is read only from disk.
+
+**Examples:**
+
+```bash
+# Namespaced model: openai → default https://api.openai.com/v1 ; ollama/local → http://localhost:11434/v1
+openwork --model openai/gpt-4o --baseUrl= --apiKey=sk-...
+
+# Kebab-case aliases are equivalent
+openwork --model ollama/llama3.1:8b --base-url http://localhost:11434/v1 --api-key ""
+```
+
+Use `--model namespace/model` so OpenWork knows you are configuring the OpenAI shim; a plain `--model sonnet` is left for Claude Code / Anthropic as usual.
+
+**Later runs:** if `~/.openwork` exists, OpenWork sets `CLAUDE_CODE_USE_OPENAI=1` and merges saved model/base URL/key into the environment. To use Anthropic-only for a session, skip the store: `OPENWORK_SKIP_STORE=1 openwork`. To remove the profile: `rm -rf ~/.openwork`.
+
+---
+
+## Quick Start
+
+### 1. Configure provider
+
+```bash
+openwork configure
 ```
 
 ### 2. Run
 
 ```bash
-# If installed via npm
 openwork
-
-# If running from source
-bun run dev
-# or after build:
-node dist/cli.mjs
 ```
+
+### Alternative: environment variables
+
+```bash
+export CLAUDE_CODE_USE_OPENAI=1
+export OPENAI_API_KEY=sk-your-key-here
+export OPENAI_MODEL=gpt-4o
+openwork
+```
+
+From source: `bun run dev` or `node dist/cli.mjs` after `bun run build`.
 
 ---
 
@@ -316,6 +389,15 @@ src/utils/auth.ts                — Recognizes OpenAI as valid 3P provider
 ```
 
 6 files changed. 786 lines added. Zero dependencies added.
+
+---
+
+## Documentation
+
+| Doc | Description |
+|-----|-------------|
+| [docs/PLAYBOOK.md](docs/PLAYBOOK.md) | Daily workflow, provider modes, troubleshooting matrix |
+| [docs/ENVIRONMENT_DICTIONARY.md](docs/ENVIRONMENT_DICTIONARY.md) | Complete reference for all environment variables and config keys |
 
 ---
 
