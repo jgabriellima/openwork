@@ -45,7 +45,9 @@ export function ThemeProvider({
   initialState,
   onThemeSave = defaultSaveTheme
 }: Props) {
-  const [themeSetting, setThemeSetting] = useState(initialState ?? defaultInitialTheme);
+  const [themeSetting, setThemeSetting] = useState<ThemeSetting>(() =>
+    initialState !== undefined ? initialState : defaultInitialTheme(),
+  );
   const [previewTheme, setPreviewTheme] = useState<ThemeSetting | null>(null);
 
   // Track terminal theme for 'auto' resolution. Seeds from $COLORFGBG (or

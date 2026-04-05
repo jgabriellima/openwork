@@ -1,32 +1,70 @@
+import { Stream } from 'stream'
 import { createElement, type ReactNode } from 'react'
 import { ThemeProvider } from './components/design-system/ThemeProvider.js'
 import inkRender, {
   type Instance,
   createRoot as inkCreateRoot,
-  type RenderOptions,
+  type RenderOptions as RootRenderOptions,
   type Root,
 } from './ink/root.js'
+import type { ThemeSetting } from './utils/theme.js'
 
-export type { RenderOptions, Instance, Root }
+export type RenderOptions = RootRenderOptions & {
+  /**
+   * Seed ThemeProvider without calling getGlobalConfig() on first paint.
+   * Stripped before options reach Ink (useful before enableConfigs() or when
+   * global config must not be read).
+   */
+  themeInitialSetting?: ThemeSetting
+}
+
+export type { Instance, Root }
+
+function splitRenderOptions(
+  options?: NodeJS.WriteStream | RenderOptions,
+): {
+  inkOptions: NodeJS.WriteStream | RootRenderOptions | undefined
+  themeInitialSetting?: ThemeSetting
+} {
+  if (options === undefined) {
+    return { inkOptions: undefined }
+  }
+  if (options instanceof Stream) {
+    return { inkOptions: options }
+  }
+  const { themeInitialSetting, ...rest } = options
+  return { inkOptions: rest, themeInitialSetting }
+}
 
 // Wrap all CC render calls with ThemeProvider so ThemedBox/ThemedText work
 // without every call site having to mount it. Ink itself is theme-agnostic.
-function withTheme(node: ReactNode): ReactNode {
-  return createElement(ThemeProvider, null, node)
+function withTheme(
+  node: ReactNode,
+  themeInitialSetting?: ThemeSetting,
+): ReactNode {
+  if (themeInitialSetting !== undefined) {
+    return createElement(ThemeProvider, {
+      initialState: themeInitialSetting,
+      children: node,
+    })
+  }
+  return createElement(ThemeProvider, { children: node })
 }
 
 export async function render(
   node: ReactNode,
   options?: NodeJS.WriteStream | RenderOptions,
 ): Promise<Instance> {
-  return inkRender(withTheme(node), options)
+  const { inkOptions, themeInitialSetting } = splitRenderOptions(options)
+  return inkRender(withTheme(node, themeInitialSetting), inkOptions)
 }
 
 export async function createRoot(options?: RenderOptions): Promise<Root> {
-  const root = await inkCreateRoot(options)
+  const { themeInitialSetting, ...rest } = options ?? {}
+  const root = await inkCreateRoot(rest)
   return {
     ...root,
-    render: node => root.render(withTheme(node)),
+    render: node => root.render(withTheme(node, themeInitialSetting)),
   }
 }
 

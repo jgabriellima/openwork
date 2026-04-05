@@ -3,6 +3,7 @@ import React from 'react'
 import { render } from '../ink.js'
 import { KeybindingSetup } from '../keybindings/KeybindingProviderSetup.js'
 import { AppStateProvider } from '../state/AppState.js'
+import { enableConfigs } from '../utils/config.js'
 import {
   loadOpenWorkPublicConfig,
   loadOpenWorkSecrets,
@@ -27,6 +28,9 @@ export async function runOpenWorkConfigure(): Promise<void> {
     )
     process.exit(1)
   }
+
+  // ThemeProvider reads ~/.claude config for theme; Ink render wraps the tree with it.
+  enableConfigs()
 
   const pub = loadOpenWorkPublicConfig()
   const sec = loadOpenWorkSecrets()
@@ -63,7 +67,12 @@ export async function runOpenWorkConfigure(): Promise<void> {
             />
           </KeybindingSetup>
         </AppStateProvider>,
-        { ...getBaseRenderOptions(true), exitOnCtrlC: true },
+        {
+          ...getBaseRenderOptions(true),
+          exitOnCtrlC: true,
+          // Avoid getGlobalConfig() on mount (ThemeProvider lazy init + config gate).
+          themeInitialSetting: 'dark',
+        },
       )
     })()
   })

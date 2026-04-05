@@ -121,15 +121,10 @@ const SAFE_ERROR_THEME_NAME: ThemeName = 'dark';
 export async function showInvalidConfigDialog({
   error
 }: InvalidConfigHandlerProps): Promise<void> {
-  // Extend RenderOptions with theme property for this specific usage
-  type SafeRenderOptions = Parameters<typeof render>[1] & {
-    theme?: ThemeName;
-  };
-  const renderOptions: SafeRenderOptions = {
+  const renderOptions: Parameters<typeof render>[1] = {
     ...getBaseRenderOptions(false),
-    // IMPORTANT: Use hardcoded theme name to avoid circular dependency with getGlobalConfig()
-    // This allows the error dialog to show even when config file has JSON syntax errors
-    theme: SAFE_ERROR_THEME_NAME
+    // IMPORTANT: Seed theme without getGlobalConfig() (invalid JSON / before enableConfigs).
+    themeInitialSetting: SAFE_ERROR_THEME_NAME,
   };
   await new Promise<void>(async resolve => {
     const {
