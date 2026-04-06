@@ -1,6 +1,6 @@
 .PHONY: setup install build start dev doctor smoke check clean \
 	openwork-install openwork-install-remote openwork-uninstall openwork-purge \
-	claude claude-revert release publish
+	claude claude-revert release release-push publish
 
 ENV_FILE := .env
 
@@ -97,16 +97,20 @@ clean:
 
 # ── Release (Changesets) ─────────────────────────────────────────────────────────
 #
-# Prerequisite: committed .changeset/*.md files (run `bunx changeset` on feature work).
+# make release       → scripts/make-release-main.sh: checkout main, pull, version bump,
+#                      push branch chore/version-packages-*, open PR, merge (gh CLI).
+#   Prereq: feature work with .changeset/*.md already merged into origin/main; clean git tree.
+#   Env: RELEASE_MERGE=auto (default) | merge | admin | open; RELEASE_BASE_BRANCH=main
+#   After merge to main, .github/workflows/release.yml publishes to npm if NPM_TOKEN is set.
 #
-# make release  → build, `changeset version`, commit version bump, push to origin.
-#   After push, .github/workflows/release.yml may publish to npm + GitHub Release if
-#   NPM_TOKEN is configured (no local `make publish` needed in that case).
+# make release-push  → bump + commit + push current branch only (no PR, no branch switch).
 #
-# make publish  → build, `changeset publish` (npm + git tag), push branch + tags.
-#   Use for publishing from this machine; skip if CI already published the version.
+# make publish       → build, `changeset publish` (npm + tag), push --follow-tags (local escape hatch).
 
 release:
+	bash scripts/make-release-main.sh
+
+release-push:
 	@echo "→ build"
 	bun run build
 	@echo "→ changeset version (bump package.json + CHANGELOG, consume .changeset/*)"
@@ -156,6 +160,7 @@ help:
 	@echo ""
 	@echo "  clean           Remove dist/ and reports/"
 	@echo ""
-	@echo "  release         Changeset version bump + commit + git push (needs .changeset/*.md)"
+	@echo "  release         main + version bump + gh PR + merge (needs gh; see Makefile header)"
+	@echo "  release-push    version bump + push current branch only (no PR)"
 	@echo "  publish         changeset publish (npm + tag) + git push --follow-tags"
 	@echo ""
