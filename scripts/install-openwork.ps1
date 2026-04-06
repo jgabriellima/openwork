@@ -17,7 +17,7 @@ function Get-NpmGlobalBin {
     return (Join-Path $p "bin")
 }
 
-$NpmPkg = if ($env:OPENWORK_NPM_PACKAGE) { $env:OPENWORK_NPM_PACKAGE } else { "@jambuai/openwork" }
+$NpmPkg = if ($env:OPENWORK_NPM_PACKAGE) { $env:OPENWORK_NPM_PACKAGE } else { "@jambulab/openwork" }
 $NpmTag = if ($env:OPENWORK_NPM_TAG) { $env:OPENWORK_NPM_TAG } else { "latest" }
 
 if ($env:OPENWORK_INSTALL_CHANNEL -and $env:OPENWORK_INSTALL_CHANNEL -ne "npm") {

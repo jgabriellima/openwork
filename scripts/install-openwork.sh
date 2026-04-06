@@ -5,14 +5,14 @@
 # Installs the published npm package globally (Node + npm only).
 #
 # Env:
-#   OPENWORK_NPM_PACKAGE     — default @jambuai/openwork
+#   OPENWORK_NPM_PACKAGE     — default @jambulab/openwork
 #   OPENWORK_NPM_TAG         — dist-tag, default latest
 #   OPENWORK_SKIP_PATH_HOOK — set to 1 to not edit shell rc
 #   OPENWORK_PAUSE=1        — wait for Enter before exit
 
 set -eo pipefail
 
-NPM_PKG="${OPENWORK_NPM_PACKAGE:-@jambuai/openwork}"
+NPM_PKG="${OPENWORK_NPM_PACKAGE:-@jambulab/openwork}"
 NPM_TAG="${OPENWORK_NPM_TAG:-latest}"
 MARKER_NPM="# openwork-install: add npm global bin to PATH"
 

@@ -1,10 +1,10 @@
 {
-  "name": "@jambuai/openwork",
+  "name": "@jambulab/openwork",
   "version": "0.2.0",
   "description": "Agentic coding CLI that works with any OpenAI-compatible LLM — GPT-5.x, DeepSeek, Gemini, Ollama, and 200+ models",
   "type": "module",
   "bin": {
-    "openwork": "./bin/openwork"
+    "openwork": "bin/openwork"
   },
   "files": [
     "bin/",

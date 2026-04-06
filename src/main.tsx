@@ -4349,6 +4349,29 @@ async function run(): Promise<CommanderCommand> {
       await runOpenWorkAppearance();
     });
 
+  // claude-shim: install a `claude` → openwork shell function in the user's rc file.
+  // Equivalent to `make claude` / `make claude OPENWORK_BIN=<path>`.
+  program
+    .command('claude-shim')
+    .alias('shim-install')
+    .description('Install a shell function so `claude` invokes openwork (writes to ~/.zshrc or equivalent)')
+    .option('--bin <path>', 'Absolute path to the openwork executable (default: resolve `openwork` on PATH at shell startup)')
+    .action(async (options: { bin?: string }) => {
+      const { installClaudeShim } = await import('./cli/claudeShim.js');
+      await installClaudeShim(options.bin);
+    });
+
+  // claude-shim-revert: remove the shim from all known rc files.
+  // Equivalent to `make claude-revert`.
+  program
+    .command('claude-shim-revert')
+    .alias('shim-remove')
+    .description('Remove the claude → openwork shell shim from rc files (undoes claude-shim)')
+    .action(async () => {
+      const { removeClaudeShim } = await import('./cli/claudeShim.js');
+      await removeClaudeShim();
+    });
+
   // Doctor command - check installation health
   program.command('doctor').description('Check the health of your Claude Code auto-updater. Note: The workspace trust dialog is skipped and stdio servers from .mcp.json are spawned for health checks. Only use this command in directories you trust.').action(async () => {
     const [{
