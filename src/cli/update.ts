@@ -28,8 +28,14 @@ import { gte } from 'src/utils/semver.js'
 import { getInitialSettings } from 'src/utils/settings/settings.js'
 
 export async function update() {
+  // OpenWork build: MACRO.VERSION is a compatibility sentinel; DISPLAY_VERSION is the npm semver.
+  const selfVersion = MACRO.DISPLAY_VERSION ?? MACRO.VERSION
+  const isOpenWorkNpm =
+    typeof MACRO.PACKAGE_URL === 'string' && MACRO.PACKAGE_URL.includes('openwork')
+  const cliLabel = isOpenWorkNpm ? 'OpenWork' : 'Claude Code'
+
   logEvent('tengu_update_check', {})
-  writeToStdout(`Current version: ${MACRO.VERSION}\n`)
+  writeToStdout(`Current version: ${selfVersion}\n`)
 
   const channel = getInitialSettings()?.autoUpdatesChannel ?? 'latest'
   writeToStdout(`Checking for updates to ${channel} version...\n`)
@@ -306,15 +312,15 @@ export async function update() {
   }
 
   // Check if versions match exactly, including any build metadata (like SHA)
-  if (latestVersion === MACRO.VERSION) {
+  if (latestVersion === selfVersion) {
     writeToStdout(
-      chalk.green(`Claude Code is up to date (${MACRO.VERSION})`) + '\n',
+      chalk.green(`${cliLabel} is up to date (${selfVersion})`) + '\n',
     )
     await gracefulShutdown(0)
   }
 
   writeToStdout(
-    `New version available: ${latestVersion} (current: ${MACRO.VERSION})\n`,
+    `New version available: ${latestVersion} (current: ${selfVersion})\n`,
   )
   writeToStdout('Installing update...\n')
 
@@ -374,9 +380,16 @@ export async function update() {
     case 'success':
       writeToStdout(
         chalk.green(
-          `Successfully updated from ${MACRO.VERSION} to version ${latestVersion}`,
+          `Successfully updated from ${selfVersion} to version ${latestVersion}`,
         ) + '\n',
       )
+      if (isOpenWorkNpm) {
+        writeToStdout(
+          chalk.dim(
+            'Restart the shell or run `hash -r` if `openwork --version` still shows the old release.',
+          ) + '\n',
+        )
+      }
       await regenerateCompletionCache()
       break
     case 'no_permissions':

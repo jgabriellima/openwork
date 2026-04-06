@@ -57,6 +57,7 @@ const result = await Bun.build({
     // version separately in OpenWork branding.
     'MACRO.VERSION': JSON.stringify('99.0.0'),
     'MACRO.DISPLAY_VERSION': JSON.stringify(version),
+    'MACRO.PACKAGE_URL': JSON.stringify(pkg.name),
     'MACRO.BUILD_TIME': JSON.stringify(new Date().toISOString()),
     'MACRO.ISSUES_EXPLAINER':
       JSON.stringify('report the issue at https://github.com/anthropics/claude-code/issues'),
