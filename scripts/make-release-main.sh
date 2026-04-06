@@ -45,7 +45,7 @@ git fetch origin "$BASE"
 
 echo "→ checkout $BASE"
 git checkout "$BASE"
-git pull --ff-only "origin/$BASE"
+git pull --ff-only origin "$BASE"
 
 CHANGESETS="$(find .changeset -maxdepth 1 -name '*.md' -type f ! -name 'README.md' 2>/dev/null | wc -l | tr -d ' ')"
 if [ "${CHANGESETS:-0}" -eq 0 ]; then
@@ -112,6 +112,6 @@ esac
 
 trap - EXIT
 git checkout "$BASE"
-git pull --ff-only "origin/$BASE"
+git pull --ff-only origin "$BASE"
 
 echo "→ done. Local $BASE is up to date. CI / release.yml will publish to npm if configured."
