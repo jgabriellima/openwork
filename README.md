@@ -109,7 +109,7 @@ The shim covers:
 
 ## Install
 
-> **Package name:** `@jgabriellima/openwork`  
+> **Package name:** `@jambuai/openwork`  
 > The **unscoped** npm name `openwork` is a **different project** — do not use `npm install -g openwork` for this repository.
 
 > **npm registry:** If `npm install` returns **404**, the scoped package may not be published yet. Use **[from source](#option-c--from-source-contributors--bleeding-edge)** or publish via your release workflow, then retry.
@@ -119,14 +119,14 @@ The shim covers:
 Requires [Node.js 20+](https://nodejs.org/):
 
 ```bash
-npm install -g @jgabriellima/openwork@latest
+npm install -g @jambuai/openwork@latest
 ```
 
 Then run `openwork configure` once. If `openwork` is not on your `PATH`, add your npm global bin directory (the one-line installer below can append it idempotently).
 
 ### Option B — one-line installer (npm by default)
 
-Runs `npm install -g @jgabriellima/openwork@latest` and, when needed, appends your **npm global bin** to `PATH` in your shell rc (marked idempotently). **Node + npm only** — no Git or Bun required on the target machine.
+Runs `npm install -g @jambuai/openwork@latest` and, when needed, appends your **npm global bin** to `PATH` in your shell rc (marked idempotently). **Node + npm only** — no Git or Bun required on the target machine.
 
 **macOS / Linux / Git Bash (Windows)**
 
@@ -142,7 +142,7 @@ irm https://raw.githubusercontent.com/jambuai/openwork/main/scripts/install-open
 
 | Variable | Effect |
 | :--- | :--- |
-| `OPENWORK_NPM_PACKAGE` | Override package (default `@jgabriellima/openwork`) |
+| `OPENWORK_NPM_PACKAGE` | Override package (default `@jambuai/openwork`) |
 | `OPENWORK_NPM_TAG` | Dist-tag (default `latest`) |
 | `OPENWORK_SKIP_PATH_HOOK=1` | Do not edit shell rc / user `PATH` |
 | `OPENWORK_PAUSE=1` | Wait for Enter before exit (useful if the window closes too fast) |
