@@ -1,21 +1,11 @@
-# Publishes to npm using the "name" and "version" fields in package.json (this repo: github.com/jambuai/openwork)
-# when you publish a GitHub Release, or manually via workflow_dispatch on main.
+# Escape hatch only: publishes whatever version is already in package.json on the
+# checked-out ref. Normal releases use `.github/workflows/release.yml` (Changesets).
 #
-# Setup (once):
-# 1. Create an npm "Automation" token: https://www.npmjs.com/settings/~/tokens
-# 2. Repo → Settings → Secrets → Actions → New repository secret: NPM_TOKEN
-#
-# Release flow:
-# 1. Bump "version" in package.json on main and push (or merge PR).
-# 2. Git tag matching that version, e.g. git tag v0.2.0 && git push origin v0.2.0
-# 3. GitHub → Releases → Draft a release from that tag → Publish release.
-#    (workflow_dispatch can be used for dry runs on a branch if needed.)
+# Requires: NPM_TOKEN secret.
 
-name: Publish npm
+name: Manual npm publish
 
 on:
-  release:
-    types: [published]
   workflow_dispatch:
 
 permissions:
@@ -24,7 +14,6 @@ permissions:
 
 jobs:
   publish:
-    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

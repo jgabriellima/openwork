@@ -27,15 +27,15 @@ GPT-5.2 · DeepSeek · OpenRouter · Ollama · LM Studio · Azure · Groq · 200
 
 ## Table of contents
 
-1. [Using OpenWork](#using-openwork)
-2. [Architecture](#architecture)
+1. [At a glance](#at-a-glance)
+2. [Using OpenWork](#using-openwork)
 3. [Install](#install)
 4. [CLI provider config (`~/.openwork`)](#cli-provider-config-openwork)
 5. [Quick start](#quick-start)
 6. [Provider examples](#provider-examples)
 7. [Environment variables](#environment-variables)
 8. [Runtime hardening](#runtime-hardening)
-9. [Capabilities & limitations](#capabilities)
+9. [Capabilities](#capabilities)
 10. [Model quality notes](#model-quality-notes)
 11. [Implementation notes](#implementation-notes)
 12. [Documentation](#documentation)
@@ -56,9 +56,6 @@ GPT-5.2 · DeepSeek · OpenRouter · Ollama · LM Studio · Azure · Groq · 200
 ## Install
 
 > **Package name:** `@jambulab/openwork`  
-> The **unscoped** npm name `openwork` is a **different project** — do not use `npm install -g openwork` for this repository.
-
-> **npm registry:** If `npm install` returns **404**, the scoped package may not be published yet. Use **[from source](#option-c--from-source-contributors--bleeding-edge)** or publish via your release workflow, then retry.
 
 ### Option A — npm global
 
